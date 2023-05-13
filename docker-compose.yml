@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  mysql:
+    container_name: db
+    image: mysql:8.0
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: application_db
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+    ports:
+        - "9906:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  php:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - mysql
+    container_name: my-php-app
+    ports:
+    - '9000:80'
+    volumes:
+    - .:/var/www/html
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+        - 9001:80
+volumes:
+  mysql_data: 
